@@ -1,18 +1,12 @@
-import '@/styles/globals.css';
-
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { SessionProvider } from 'next-auth/react';
 
+import '@/styles/globals.css';
+import { auth } from '@/auth';
+import { MainNav } from '@/components/Navigation/MainNav';
 import MainFooter from '@/components/Footer';
 import { QueryProvider } from '@/providers/query';
-import type { ChildrenProps } from '@/types';
-
-export const metadata = {
-  description:
-    'AI Calda is a food image calorie calculator that uses machine learning to estimate the calorie content of food images.',
-  keywords:
-    'AI, food image calorie calculator, food image calorie estimator, food image calorie counter, food image calorie tracker, food image calorie detector',
-  title: 'AI Calda Project',
-};
 
 const inter = Inter({
   subsets: ['latin'],
@@ -20,16 +14,33 @@ const inter = Inter({
   adjustFontFallback: false,
 });
 
-export default async function RootLayout({ children }: ChildrenProps) {
+export const metadata: Metadata = {
+  title: {
+    default: 'AI Calda',
+    template: '%s | AI Calda',
+  },
+  description: 'Track your calories with AI assistance',
+};
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await auth();
+
   return (
     <html lang="en">
-      <body
-        className={`${inter.className} h-full flex flex-col justify-between`}
-      >
-        <section className="flex-1">
-          <QueryProvider>{children}</QueryProvider>
-        </section>
-        <MainFooter />
+      <body className={inter.className}>
+        <SessionProvider session={session}>
+          <div className="relative min-h-screen flex flex-col">
+            {session && <MainNav />}
+            <main className="flex-1">
+              <QueryProvider>{children}</QueryProvider>
+            </main>
+            <MainFooter />
+          </div>
+        </SessionProvider>
       </body>
     </html>
   );

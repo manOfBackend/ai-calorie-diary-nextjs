@@ -1,18 +1,26 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
-export default async function middleware(req: NextRequest) {
-  // const accessToken = req.cookies.get('accessToken')?.value;
-  // console.log('accessToken', accessToken);zz
+import { auth } from '@/auth';
 
-  const authUser = true;
+export default async function middleware(request: NextRequest) {
+  const session = await auth();
+  const isLoggedIn = !!session;
+  const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
 
-  if (!authUser)
-    return NextResponse.redirect(new URL('/unauthorized', req.url), req);
+  if (isAuthPage) {
+    if (isLoggedIn) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    return null;
+  }
 
-  return NextResponse.next();
+  if (!isLoggedIn && !request.nextUrl.pathname.startsWith('/api')) {
+    return NextResponse.redirect(new URL('/auth/login', request.url));
+  }
+
+  return null;
 }
 
 export const config = {
-  matcher: ['/dashboard', '/dashboard/:path*'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
