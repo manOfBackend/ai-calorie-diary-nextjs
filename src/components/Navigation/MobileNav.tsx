@@ -29,7 +29,7 @@ export function MobileNav() {
       </SheetTrigger>
       <SheetContent side="left" className="w-[300px] sm:w-[400px]">
         <SheetHeader>
-          <SheetTitle>Menu</SheetTitle>
+          <SheetTitle>메뉴</SheetTitle>
         </SheetHeader>
         <nav className="flex flex-col gap-4 mt-4">
           {routes.map(route => (
